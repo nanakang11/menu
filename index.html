@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>이번 주 식단표</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;800&display=swap">
+<style>
+:root{--bg:#eef1f4;--surface:#fff;--ink:#1b2430;--sub:#5d6b7a;--line:#d5dce3;--accent:#e8590c;--accent-ink:#fff;--soft:#fff1e8;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141a21;--surface:#1e2630;--ink:#eef2f6;--sub:#9aa8b6;--line:#2f3a47;--accent:#ff8a4c;--accent-ink:#1b1206;--soft:#3a2518}}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",system-ui,sans-serif;line-height:1.5}
+main{max-width:560px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:15px;font-weight:500;color:var(--sub);margin:0 0 4px}
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px 20px;margin-bottom:16px}
+.when{font-size:14px;color:var(--accent);font-weight:500;margin:0}
+.main-dish{font-size:24px;font-weight:800;line-height:1.3;margin:2px 0 10px;word-break:keep-all}
+.sides{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+.sides li{background:var(--bg);border-radius:6px;padding:3px 10px;font-size:14px}
+.corner{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.corner:first-child{margin-top:8px;padding-top:0;border-top:0}
+.corner b{display:inline-block;font-size:13px;font-weight:500;background:var(--accent);color:var(--accent-ink);border-radius:6px;padding:1px 10px;margin-bottom:6px}
+.row{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto}
+.row button{flex:1 0 auto;min-width:44px;font:inherit;font-size:14px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.row button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:500}
+.row button.today:not([aria-pressed=true]){background:var(--soft)}
+button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.togo{list-style:none;margin:0;padding:0}
+.togo li{display:flex;gap:12px;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--line);font-size:15px}
+.togo li:last-child{border-bottom:0}
+.togo span{flex:0 0 52px;font-size:12px;font-weight:500;color:var(--sub)}
+#days{overflow:visible}
+#days button{white-space:pre-line;flex:1 1 0;min-width:0;padding:6px 0;line-height:1.3;font-size:13px}
+.note{font-size:12px;color:var(--sub);margin-top:18px}
+</style>
+</head>
+<body>
+<main>
+<h1>한국타이어 테크노돔 · 10/26–11/01 식단</h1>
+<div id="mobile">
+<div class="hero" aria-live="polite">
+<p class="when" id="when"></p>
+<div id="body"></div>
+</div>
+<div class="row" id="days" role="group" aria-label="요일"></div>
+<div class="row" id="meals" role="group" aria-label="끼니"></div>
+</div>
+<p class="note">식당 사정에 따라 메뉴가 바뀔 수 있어요. 끼니 기준 시간: 조식 9:00, 중식 13:30, 석식 19:30까지.</p>
+</main>
+<script>
+const D=["월","화","수","목","금","토","일"];let DATES=["10/26","10/27","10/28","10/29","10/30","10/31","11/01"];
+let M={
+조식:[
+{A:["얼큰시래기순댓국","쌀밥","치킨너겟&머스타드","감자채볶음","치커리샐채","포기김치"]},
+{A:["설악추어탕","쌀밥","새우튀김&케찹","쥐어채볶음","쫑상추겉절이","포기김치"]},
+{A:["닭가슴살고구마조림","쌀밥","조랭이떡국","브로콜리숙회&초장","찬나물샐채","포기김치"]},
+{A:["소고기뭇국","쌀밥","너비아니영양조림","실곤약무침","유채나물","포기김치"]},
+{A:["매콤돈육장조림","쌀밥","시락국","멸치견과류볶음","도시락김","포기김치"]},
+{A:["매콤치킨버거","제로펩시"]},
+{A:["육개장컵라면","닭가슴살꼬치","레쓰비커피"]}],
+중식:[
+{A:["황금팽이굴림만두전골","흑미밥","메추리알장조림","주키니호박볶음","오이무침","포기김치"],B:["에비가츠동","얼큰어묵국","핫도그&케찹","락교&조생강","포기김치","야쿠르트"]},
+{A:["감자돼깨응심이메밀국수","언양식불고기&파채무침","꽈배기도넛츠","추가밥","쑥갓생채","배추겉절이"],B:["카레라이스","김치찌찌탕수육","유부장국","후르츠콘샐러드","단무지","깍두기"]},
+{A:["매운소고기가지솥밥","시금치된장국","참치고추버섯전&간장","연두부튀김&간장","궁채절임","포기김치"],B:["삼겹야채쫄면","갈빅꼬치&데리소스","우동국","추가밥","삶은계란","포기김치","제로펩시"]},
+{A:["돼지고기김치찌개","완두콩밥","삼색계란찜","백순대볶음&들깨초장","콩나물무침","포기김치"],B:["맥앤치즈함박정식","시금치요거트피자","추가밥","오이피클","포기김치","제로펩시"]},
+{A:["고추장부추닭볶음","쌀밥","미역국","청포묵길가루무침","청경채생채","포기김치"],B:["얼큰탄탄라면","오코노미야끼","아이스슈","꼬들단무지","포기김치"]},
+{A:["바지락뭇국","쌀밥","치킨커틀렛&갱정소스","우엉채조림","그린샐러드&참깨소스","포기김치"]},
+{A:["사골떡만둣국","쌀밥","꼬마돈가스&케찹","도토리묵&양념장","무말랭이무침","포기김치"]}],
+석식:[
+{A:["떡갈비마늘탑밥","쌀밥","매콤떡볶이","콩나물국","김말이튀김","단무지","포기김치"]},
+{A:["굴소스닭고기볶음","쌀밥","고추장찌개","맛살거채생채","간장마늘종지","포기김치"]},
+{A:["북어해장국","쌀밥","햄계란전&케찹","미역굴기볶음","고추지무침","석박지"]},
+{A:["순두부짬뽕탕","쌀밥","고추잡채","삼색짬짱","오복지무침","포기김치"]},
+{A:["육개장&당면사리","쌀밥","완자전&케찹","엄지버섯볶음","미역초무침","깍두기"]},
+{A:["닭곰탕&당면사리","쌀밥","두부구이","매콤어묵볶음","부추생채","볶음김치"]},
+{A:["우삼겹죽주탕","쌀밥","후랑크케찹볶음","매운잡채","시금치나물","깍두기"]}]};
+let TO=[
+["치킨튜나샌드&오트우유","흔제목쌀팩트&영양두유","선식평플레이크&우유"],
+["제육김밥&매일두유","큐브유곰팩트&바이오플레인","더단백말기&고구마말랭이"],
+["뉴사과샌드&베지믹두유","하프-크랜베리코타샌드","치킨벤더콤팩트&바이오사과","데이크프토스카나냐"],
+["케이준치킨랩샌드&앤마크사과","불고기콤팩트&영양두유","프로틴베즈&우유"],
+["스파이시마요햄치즈샌드&흰우유","하프-피넛버터베이글","데리야끼치킨콤팩트&바이오사과","멀티브릭스타치오&자유시간"],
+[],[]];
+let TL=[["스파이시치킨샌드&고함슬두유"],["트리플치즈버거&제로펩시"],["돼지불고기김밥&맛있는라면"],["아이돌그랜트&매일두유"],["흔제오리샐러드&머스타드D&미니햇개차"],[],[]];
+const ENDS=[["조식",9*60],["중식",13.5*60],["석식",19.5*60]];
+const now=new Date();
+const mins=now.getHours()*60+now.getMinutes();
+let inWeek,meal,day,T;
+function setup(){
+const k=DATES.indexOf(String(now.getMonth()+1).padStart(2,"0")+"/"+String(now.getDate()).padStart(2,"0"));
+inWeek=k>=0;
+meal=null;for(const [m,e] of ENDS){if(mins<e){meal=m;break}}
+day=inWeek?k:0;
+if(!meal){meal="조식";if(inWeek)day=Math.min(day+1,6)}
+T=inWeek?k:-1}
+setup();
+const $=id=>document.getElementById(id);
+function btns(el,items,sel,fn,tod){el.innerHTML="";items.forEach((t,i)=>{const b=document.createElement("button");b.textContent=t;b.setAttribute("aria-pressed",String(i===sel||t===sel));if(tod===i)b.className="today";b.onclick=()=>fn(i,t);el.appendChild(b)})}
+function render(){
+btns($("days"),D.map((d,i)=>d+"\n"+DATES[i]),day,(i)=>{day=i;render()},T);
+btns($("meals"),["조식","중식","석식"],meal,(i,t)=>{meal=t;render()});
+const c=M[meal][day];
+$("when").textContent=DATES[day]+"("+D[day]+") "+meal+(day===T?" · 오늘":"");
+const blk=(n,a)=>'<div class="corner"><b>'+n+'</b><p class="main-dish">'+a[0]+'</p><ul class="sides">'+a.slice(1).map(x=>"<li>"+x+"</li>").join("")+"</ul></div>";
+const TG=meal==="조식"?TO[day]:meal==="중식"?TL[day]:[];
+const tg=TG.length?'<div class="corner"><b>To Go 코너 · 택1</b><ol class="togo">'+TG.map((x,i)=>"<li><span>To Go "+(i+1)+"</span>"+x+"</li>").join("")+"</ol></div>":"";
+$("body").innerHTML=blk(meal==="중식"?"A코너":"오늘의 메뉴",c.A)+(c.B?blk("B코너",c.B):"")+tg}
+render();
+</script>
+</body>
+</html>
